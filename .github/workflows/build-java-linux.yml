@@ -1,5 +1,5 @@
 
-name: Build Java OSGi bundles for use in Dawn
+name: Build Linux and Windows Java OSGi bundles for use in Dawn
 
 # Controls when the action will run. 
 on:
@@ -36,11 +36,12 @@ jobs:
           platforms: arm64
 
       # Use docker image of Centos 6 or 7 with some devel packages as defined in PEP571 and PEP599
-      - name: Make Linux bindings
+      - name: Make Linux and Windows bindings
         run: |
-          docker run --rm --env="PLAT=${{ matrix.PLAT }}" --env="ARCH=${{ matrix.ARCH }}" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_manylinux_binding.sh
+          docker run --rm --env="PLAT=${{ matrix.PLAT }}" --env="ARCH=${{ matrix.ARCH }}" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
       - uses: actions/upload-artifact@v1
         with:
-          name: cbflib-build
+          name: cbflib-build-linux
           path: dist/
+
