@@ -22,13 +22,18 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        ARCH: ["x86_64"]
+        ARCH: ["x86_64", "aarch64"]
         PLAT: ["2014"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: arm64
 
       # Use docker image of Centos 6 or 7 with some devel packages as defined in PEP571 and PEP599
       - name: Make Linux bindings
