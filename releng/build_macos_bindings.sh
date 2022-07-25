@@ -3,8 +3,9 @@ set -e -x
 
 export JDKDIR=$JAVA_HOME_11_X64
 
-ARCH=x86_64
+CBF_DYLIB=$PWD/solib/libcbf.dylib
 
+ARCH=x86_64
 make Makefiles
 make distclean
 export MACOSX_DEPLOYMENT_TARGET=10.8
@@ -16,6 +17,7 @@ VERSION=`basename $JARFILE | sed -e 's/cbflib-\(.*\)\.jar/\1/g'`
 DEST=dist/$VERSION/macos/$ARCH
 mkdir -p $DEST
 cp $JARFILE $DEST
+install_name_tool -change $CBF_DYLIB '@loader_path/libcbf.dylib' solib/libcbf_wrap.dylib
 cp solib/libcbf*.dylib $DEST
 mv solib solib-$ARCH
 X86_DEST=$DEST
@@ -28,6 +30,7 @@ make -f Makefile_OSX javawrapper CBFLIB_DONT_BUILD_HDF5=yes CBF_NO_REGEX=yes CBF
 DEST=dist/$VERSION/macos/$ARCH
 mkdir -p $DEST
 cp $JARFILE $DEST
+install_name_tool -change $CBF_DYLIB '@loader_path/libcbf.dylib' solib/libcbf_wrap.dylib
 cp solib/libcbf*.dylib $DEST
 mv solib solib-$ARCH
 
