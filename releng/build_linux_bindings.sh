@@ -9,19 +9,14 @@ cd /io
 JBIN=$(readlink -f `which java`)
 export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
 
-make Makefiles
-make distclean
-make javawrapper javatests CBFLIB_DONT_BUILD_HDF5=yes CBF_NO_REGEX=yes CBFLIB_DONT_USE_LOCAL_REGEX=yes CBFLIB_DONT_USE_PYCIFRW=yes CBFLIB_DONT_USE_PY2CIFRW=yes CBFLIB_DONT_USE_PY3CIFRW=yes NOFORTRAN=yes
+PLAT_OS=linux
+LIBEXT=so
+CBF_MAKEFILE=Makefile
 
-JARFILE="jcbf/cbflib-*.jar"
-VERSION=`basename $JARFILE | sed -e 's/cbflib-\(.*\)\.jar/\1/g'`
-
-DEST=/io/dist/$VERSION/linux/$PLAT/$ARCH
-mkdir -p $DEST
-cp $JARFILE $DEST
-cp solib/libcbf*.so $DEST
+source releng/build_java_bindings.sh
 
 if [ $ARCH == 'x86_64' ]; then
+    DONT_TEST=y
     source releng/build_mingw64_cross_compiler.sh
 fi
 
