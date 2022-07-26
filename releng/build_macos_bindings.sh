@@ -3,42 +3,43 @@ set -e -x
 
 export JDKDIR=$JAVA_HOME_11_X64
 
-CBF_DYLIB=$PWD/solib/libcbf.dylib
+PLAT_OS=macos
+LIBEXT=dylib
+CBF_MAKEFILE=Makefile_OSX
+export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
 
-ARCH=x86_64
-make Makefiles
-make distclean
-export MACOSX_DEPLOYMENT_TARGET=10.8
-make -f Makefile_OSX javawrapper javatests CBFLIB_DONT_BUILD_HDF5=yes CBF_NO_REGEX=yes CBFLIB_DONT_USE_LOCAL_REGEX=yes CBFLIB_DONT_USE_PYCIFRW=yes CBFLIB_DONT_USE_PY2CIFRW=yes CBFLIB_DONT_USE_PY3CIFRW=yes NOFORTRAN=yes CC="clang -arch $ARCH"
+CBF_DYLIB=libcbf.$LIBEXT
+CBF_DYLIB_WRAP=solib/libcbf_wrap.$LIBEXT
 
-JARFILE="jcbf/cbflib-*.jar"
-VERSION=`basename $JARFILE | sed -e 's/cbflib-\(.*\)\.jar/\1/g'`
+B_ARCH=$(uname -m) # build architecture
+if [ $B_ARCH == "x86_64" ]; then
+    X_ARCH=arm64 # cross architecture
+else
+    X_ARCH=x86_64
+fi
 
-DEST=dist/$VERSION/macos/$ARCH
-mkdir -p $DEST
-cp $JARFILE $DEST
-install_name_tool -change $CBF_DYLIB '@loader_path/libcbf.dylib' solib/libcbf_wrap.dylib
-cp solib/libcbf*.dylib $DEST
+ARCH=$B_ARCH
+export CBF_CC="clang -arch $ARCH"
+
+source releng/build_java_bindings.sh
+install_name_tool -change solib/$CBF_DYLIB "@loader_path/$CBF_DYLIB" $CBF_DYLIB_WRAP
 mv solib solib-$ARCH
-X86_DEST=$DEST
+B_DEST=$DEST
 
-# Repeat for -arch arm64 (just build wrapper)
-ARCH=arm64
-export MACOSX_DEPLOYMENT_TARGET=11.0
-make -f Makefile_OSX javawrapper CBFLIB_DONT_BUILD_HDF5=yes CBF_NO_REGEX=yes CBFLIB_DONT_USE_LOCAL_REGEX=yes CBFLIB_DONT_USE_PYCIFRW=yes CBFLIB_DONT_USE_PY2CIFRW=yes CBFLIB_DONT_USE_PY3CIFRW=yes NOFORTRAN=yes CC="clang -arch $ARCH"
+# Repeat for other arch (just build wrapper)
+ARCH=$X_ARCH
+export CBF_CC="clang -arch $ARCH"
 
-DEST=dist/$VERSION/macos/$ARCH
-mkdir -p $DEST
-cp $JARFILE $DEST
-install_name_tool -change $CBF_DYLIB '@loader_path/libcbf.dylib' solib/libcbf_wrap.dylib
-cp solib/libcbf*.dylib $DEST
+DONT_TEST=y
+source releng/build_java_bindings.sh
+install_name_tool -change solib/$CBF_DYLIB "@loader_path/$CBF_DYLIB" $CBF_DYLIB_WRAP
 mv solib solib-$ARCH
 
 # Create universal2 versions
-UNI_DEST=dist/$VERSION/macos/universal2
+UNI_DEST=dist/$VERSION/$PLAT_OS/universal2
 mkdir -p $UNI_DEST
-for l in $DEST/*.dylib; do
+for l in $DEST/*.$LIBEXT; do
     dlib=$(basename $l)
-    lipo -create $l $X86_DEST/$dlib -output $UNI_DEST/$dlib
+    lipo -create $l $B_DEST/$dlib -output $UNI_DEST/$dlib
 done
 
