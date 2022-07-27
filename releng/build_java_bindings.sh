@@ -5,10 +5,11 @@
 make Makefiles $CBF_MAKEFILE
 make distclean
 
+CBF_CTEST=bin/ctestcbf
 if [ -z "$DONT_TEST" ]; then
     CBF_TESTS=javatests
 else
-    unset CBF_TESTS
+    CBF_TESTS=ctestcbf_bin
 fi
 
 if [ -n "$CBF_CC" ]; then
@@ -30,7 +31,7 @@ if [ $PLAT_OS == "win32" ]; then
 else
     cp solib/libcbf*.$LIBEXT $DEST
 fi
-if [ -z "$DONT_TEST" ]; then
-    cp bin/ctestcbf $DEST
+if [ -f $CBF_CTEST ]; then
+    cp $CBF_CTEST bin/changtestcompression bin/testcbf.class $DEST
 fi
 
