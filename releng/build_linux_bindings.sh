@@ -15,6 +15,9 @@ CBF_MAKEFILE=Makefile
 
 source releng/build_java_bindings.sh
 
+# set RPATH to something sensible so linker can find main library from wrapper
+patchelf --set-rpath '$ORIGIN' $DEST/libcbf_wrap.so
+
 if [ $ARCH == 'x86_64' ]; then
     DONT_TEST=y
     source releng/build_mingw64_cross_compiler.sh
