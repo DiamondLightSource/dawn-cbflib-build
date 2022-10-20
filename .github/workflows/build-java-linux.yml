@@ -28,10 +28,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
 
@@ -40,7 +40,7 @@ jobs:
         run: |
           docker run --rm --env="PLAT=${{ matrix.PLAT }}" --env="ARCH=${{ matrix.ARCH }}" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cbflib-build-linux
           path: dist/

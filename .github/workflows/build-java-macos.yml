@@ -24,7 +24,7 @@ jobs:
     runs-on: macos-11 # For Big Sur, to compile for Apple Silicon
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Make macOS bindings
         run: |
@@ -37,7 +37,7 @@ jobs:
           limit-access-to-actor: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cbflib-build-macos
           path: dist/
