@@ -1,0 +1,16 @@
+# Support CBFLIB_DONT_BUILD_HDF5 option to Makefiles
+#
+diff --git a/include/cbf.h b/include/cbf.h
+index e5fd646..720b06e 100644
+--- a/include/cbf.h
++++ b/include/cbf.h
+@@ -250,9 +250,7 @@
+ #ifndef CBF_H
+ #define CBF_H
+ 
+-#ifdef USE_HDF5
+ #include "hdf5.h"
+-#endif
+ 
+ #ifdef __cplusplus
+ 
