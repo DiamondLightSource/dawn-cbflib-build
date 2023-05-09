@@ -43,5 +43,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: cbflib-build-linux
-          path: dist/
+          path: cbflib/dist/
 

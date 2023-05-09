@@ -6,6 +6,8 @@ set -e -x
 
 cd /io
 
+source releng/prepare_source.sh
+
 JBIN=$(readlink -f `which java`)
 export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
 

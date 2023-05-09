@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+source releng/prepare_source.sh
+
 export JDKDIR=$JAVA_HOME_11_X64
 
 PLAT_OS=macos
