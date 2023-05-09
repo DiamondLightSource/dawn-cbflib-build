@@ -1,0 +1,26 @@
+# Fix FILE pointer leak
+#   Switch to destructor syntax and use $self in free CBF handle call
+#
+diff --git a/src/jcbf.i b/src/jcbf.i
+index 139cfd6..c2ed1e1 100644
+--- a/src/jcbf.i
++++ b/src/jcbf.i
+@@ -8,6 +8,7 @@
+ 
+ %{
+ /* Includes the header in the wrapper code */
++#include "cbf_tree.h"
+ #include "cbf.h"
+ %}
+ 
+@@ -99,8 +100,8 @@ int cbf_get_realarray(cbf_handle  handle,
+ 		return pchs;
+ 	}
+ 
+-	~_cbf_handle_struct() {
+-		cbf_free_handle($self); /* let cbflib handle the closing of a file */
++	void delete_cbf_handle_struct() {
++		cbf_free_handle(self);
+ 	}
+ }
+ 
