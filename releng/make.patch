@@ -6,9 +6,10 @@
 # Fix issues with Makefiles
 #   Correct library path set wrongly in default Makefile, make sure no-fortran
 #   case does not build fortran parts, and tidy up whitespaces
+# Fix recursive HDF5CFLAGS
 #
 diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
-index a991477..0b67031 100644
+index a991477..426fa22 100644
 --- a/m4/Makefile.m4
 +++ b/m4/Makefile.m4
 @@ -284,6 +284,8 @@ CBF_PREFIX  ?= $(HOME)
@@ -34,6 +35,20 @@ index a991477..0b67031 100644
  
  CBFLIB_DONT_HAVE_FGETLN ?= yes
  ifeq ($(CBFLIB_DONT_HAVE_FGETLN),yes)
+@@ -357,11 +366,11 @@ endif
+ 
+ 'm4_ifelse(cbf_system,`LINUX',`
+ HDF5PTHREAD = -lpthread
+-HDF5CFLAGS=$(HDF5CFLAGS) -fPIC
++HDF5CFLAGS:=$(HDF5CFLAGS) -fPIC
+ ',
+ cbf_system,`default',`
+ HDF5PTHREAD = -lpthread
+-HDF5CFLAGS=$(HDF5CFLAGS) -fPIC
++HDF5CFLAGS:=$(HDF5CFLAGS) -fPIC
+ ')`
+ ifneq ($(CBFLIB_DONT_USE_LOCAL_HDF5),yes)
+ HDF5_PREFIX ?= $(PWD)
 @@ -417,6 +426,12 @@ else
  H5DUMP = /MINGW32/bin/h5dump
  endif
