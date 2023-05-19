@@ -3,7 +3,21 @@ set -e -x
 
 source releng/prepare_source.sh
 
-export JDKDIR=$JAVA_HOME_11_X64
+MTIME_M4=$(stat -f %m m4/Makefile.m4)
+MTIME_MF=$(stat -f %m Makefile_OSX)
+while [ $MTIME_M4 -le $MTIME_MF ]; do
+  sleep 1
+  touch m4/Makefile.m4 # seems that macOS's timestamping is too coarse
+  MTIME_M4=$(stat -f %m m4/Makefile.m4)
+done
+
+brew install coreutils # for readlink and realpath
+brew install openjdk@11
+
+if [ -z "$HOMEBREW_PREFIX" ]; then
+    HOMEBREW_PREFIX=$(realpath $(dirname $(which brew))/..)
+fi
+export JDKDIR=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 
 PLAT_OS=macos
 LIBEXT=dylib
