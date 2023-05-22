@@ -25,7 +25,7 @@ CBF_MAKEFILE=Makefile_OSX
 export MACOSX_DEPLOYMENT_TARGET=10.9 # minimum macOS version Mavericks for XCode 12.1+
 
 CBF_DYLIB=libcbf.$LIBEXT
-CBF_DYLIB_WRAP=solib/libcbf_wrap.$LIBEXT
+CBF_DYLIB_WRAP=libcbf_wrap.$LIBEXT
 
 B_ARCH=$(uname -m) # build architecture
 if [ $B_ARCH == "x86_64" ]; then
@@ -36,9 +36,13 @@ fi
 
 ARCH=$B_ARCH
 export CBF_CC="clang -arch $ARCH"
+export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+
 
 source releng/build_java_bindings.sh
-install_name_tool -change solib/$CBF_DYLIB "@loader_path/$CBF_DYLIB" $CBF_DYLIB_WRAP
+install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
+install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
+install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
 mv solib solib-$ARCH
 B_DEST=$DEST
 
@@ -48,7 +52,9 @@ export CBF_CC="clang -arch $ARCH"
 
 DONT_TEST=y
 source releng/build_java_bindings.sh
-install_name_tool -change solib/$CBF_DYLIB "@loader_path/$CBF_DYLIB" $CBF_DYLIB_WRAP
+install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
+install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
+install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
 mv solib solib-$ARCH
 
 # Create universal2 versions
