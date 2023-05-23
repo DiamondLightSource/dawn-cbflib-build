@@ -40,11 +40,12 @@ export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
 
 
 source releng/build_java_bindings.sh
-install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
-install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
-install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
-otool -L solib/$CBF_DYLIB solib/$CBF_DYLIB_WRAP
-mv solib solib-$ARCH
+RPATH_OLD=$(realpath -L solib/$CBF_DYLIB)
+RPATH_NEW="@loader_path/$CBF_DYLIB"
+install_name_tool -id $CBF_DYLIB $DEST/$CBF_DYLIB
+install_name_tool -id $CBF_DYLIB_WRAP $DEST/$CBF_DYLIB_WRAP
+install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $DEST/$CBF_DYLIB_WRAP
+otool -L $DEST/$CBF_DYLIB $DEST/$CBF_DYLIB_WRAP
 B_DEST=$DEST
 
 # Repeat for other arch (just build wrapper)
@@ -53,11 +54,10 @@ export CBF_CC="clang -arch $ARCH"
 
 DONT_TEST=y
 source releng/build_java_bindings.sh
-install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
-install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
-install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
-otool -L solib/$CBF_DYLIB solib/$CBF_DYLIB_WRAP
-mv solib solib-$ARCH
+install_name_tool -id $CBF_DYLIB $DEST/$CBF_DYLIB
+install_name_tool -id $CBF_DYLIB_WRAP $DEST/$CBF_DYLIB_WRAP
+install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $DEST/$CBF_DYLIB_WRAP
+otool -L $DEST/$CBF_DYLIB $DEST/$CBF_DYLIB_WRAP
 
 # Create universal2 versions
 UNI_DEST=dist/$VERSION/$PLAT_OS/universal2
@@ -65,5 +65,6 @@ mkdir -p $UNI_DEST
 for l in $DEST/*.$LIBEXT; do
     dlib=$(basename $l)
     lipo -create $l $B_DEST/$dlib -output $UNI_DEST/$dlib
+    otool -L $UNI_DEST/$CBF_DYLIB $UNI_DEST/$CBF_DYLIB_WRAP
 done
 
