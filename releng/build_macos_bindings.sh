@@ -43,6 +43,7 @@ source releng/build_java_bindings.sh
 install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
 install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
 install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
+otool -L solib/$CBF_DYLIB solib/$CBF_DYLIB_WRAP
 mv solib solib-$ARCH
 B_DEST=$DEST
 
@@ -55,6 +56,7 @@ source releng/build_java_bindings.sh
 install_name_tool -id $CBF_DYLIB solib/$CBF_DYLIB
 install_name_tool -id $CBF_DYLIB_WRAP solib/$CBF_DYLIB_WRAP
 install_name_tool -change $(realpath -L solib/$CBF_DYLIB) "@loader_path/$CBF_DYLIB" solib/$CBF_DYLIB_WRAP
+otool -L solib/$CBF_DYLIB solib/$CBF_DYLIB_WRAP
 mv solib solib-$ARCH
 
 # Create universal2 versions
