@@ -65,6 +65,6 @@ mkdir -p $UNI_DEST
 for l in $DEST/*.$LIBEXT; do
     dlib=$(basename $l)
     lipo -create $l $B_DEST/$dlib -output $UNI_DEST/$dlib
-    otool -L $UNI_DEST/$CBF_DYLIB $UNI_DEST/$CBF_DYLIB_WRAP
 done
+otool -L $UNI_DEST/$CBF_DYLIB $UNI_DEST/$CBF_DYLIB_WRAP
 
