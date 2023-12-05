@@ -23,7 +23,7 @@ make -f $CBF_MAKEFILE $CBF_TESTS javawrapper "$CBF_COMPILE" CBFLIB_DONT_BUILD_HD
 JARFILE="jcbf/cbflib-*.jar"
 VERSION=`basename $JARFILE | sed -e 's/cbflib-\(.*\)\.jar/\1/g'`
 
-DEST=dist/$VERSION/$PLAT_OS/$ARCH
+DEST=../dist/$VERSION/$PLAT_OS/$ARCH
 mkdir -p $DEST
 cp $JARFILE $DEST
 if [ $PLAT_OS == "win32" ]; then

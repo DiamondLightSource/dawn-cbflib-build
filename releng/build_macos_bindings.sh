@@ -60,7 +60,7 @@ install_name_tool -change "$RPATH_OLD" "$RPATH_NEW" $DEST/$CBF_DYLIB_WRAP
 otool -L $DEST/$CBF_DYLIB $DEST/$CBF_DYLIB_WRAP
 
 # Create universal2 versions
-UNI_DEST=dist/$VERSION/$PLAT_OS/universal2
+UNI_DEST=../dist/$VERSION/$PLAT_OS/universal2
 mkdir -p $UNI_DEST
 for l in $DEST/*.$LIBEXT; do
     dlib=$(basename $l)
