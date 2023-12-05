@@ -8,8 +8,7 @@ cd /io
 
 source releng/prepare_source.sh
 
-JBIN=$(readlink -f `which java`)
-export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
+export JDKDIR=$(readlink -f /etc/alternatives/java_sdk_openjdk)
 
 PLAT_OS=linux
 LIBEXT=so
