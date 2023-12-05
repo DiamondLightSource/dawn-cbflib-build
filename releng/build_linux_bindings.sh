@@ -9,7 +9,10 @@ cd /io
 source releng/prepare_source.sh
 
 JBIN=$(readlink -f `which java`)
-export JDKDIR=$(dirname $(dirname $(dirname $JBIN)))
+echo $JBIN
+echo $JAVA_HOME
+export JDKDIR=$(dirname $(dirname $JBIN))
+echo $JDKDIR
 
 PLAT_OS=linux
 LIBEXT=so
