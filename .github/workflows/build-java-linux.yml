@@ -40,7 +40,7 @@ jobs:
         run: |
           docker run --rm --env="PLAT=${{ matrix.PLAT }}" --env="ARCH=${{ matrix.ARCH }}" --volume $(pwd):/io ghcr.io/diamondlightsource/manylinux-dls-${{ matrix.PLAT }}_${{ matrix.ARCH }}:latest /bin/bash /io/releng/build_linux_bindings.sh
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cbflib-build-linux
           path: dist
