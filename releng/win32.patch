@@ -1,0 +1,23 @@
+diff -ur -x '*cache*' -x .git -x dist CBFlib-0.9.8/src/cbf_context.c CBFlib-0.9.8-new/src/cbf_context.c
+--- CBFlib-0.9.8/src/cbf_context.c	2025-04-10 23:52:19.000000000 +0100
++++ CBFlib-0.9.8-new/src/cbf_context.c	2026-03-12 17:56:48.584595196 +0000
+@@ -263,17 +263,16 @@
+ #include <limits.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <sys/stat.h>
+ #ifdef _WIN32
+   #include <direct.h>
+   #define MKDIR(x) _mkdir(x)
+   #ifdef H5_HAVE_MINGW
+-    #include<errno.h>
+-    #include <sys/stat.h>
++    #include <errno.h>
+     #include <sys/types.h>
+   #endif
+ #else
+   #include <errno.h>
+-  #include <sys/stat.h>
+   #include <sys/types.h>
+   #define MKDIR(x) mkdir(x,CBF_TMP_DIR_PERM)
+ #endif

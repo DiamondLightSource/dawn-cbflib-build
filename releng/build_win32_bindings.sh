@@ -32,9 +32,9 @@ export JDKDIR ARCH
 
 export MY_MINGW_ENV_DIR=/ucrt64
 
-pacman -S --noconfirm --needed make swig mingw-w64-x86_64-cmake mingw-w64-ucrt-x86_64-gcc
+pacman -S --noconfirm --needed make m4 diffutils swig mingw-w64-x86_64-cmake mingw-w64-ucrt-x86_64-gcc
 
-export PATH="$MY_MINGW_ENV_DIR"/bin:"$PATH" # add universal C runtime compilers
+export PATH="${MY_MINGW_ENV_DIR}/bin":"${JDKDIR}/bin":"$PATH" # add universal C runtime compilers
 
 case $ARCH in
   aarch64)

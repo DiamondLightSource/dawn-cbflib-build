@@ -67,7 +67,18 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  EXTRALIBS = -lm
  TIME =
  PY2CBFEXT = pyd
-@@ -1061,7 +1081,7 @@
+@@ -1004,10 +1024,6 @@
+ SETUP_PY = setup_MINGW.py
+ PY2INSTALLSETUP_PY = py2setup_MINGW.py
+ PY3INSTALLSETUP_PY = py3setup_MINGW.py
+-JDKDIR = /java
+-JSWIG = /swig/swig -java
+-PYSWIG = /swig/swig -python
+-F90SWIG = /swig/swig -fortran
+ SLFLAGS = --use_cp
+ LN = cp
+ SHAR	= shar
+@@ -1061,7 +1077,7 @@
  F90LDFLAGS = 
  SOCFLAGS = -fPIC
  SOLDFLAGS = -shared -Wl,-rpath,$(CBF_PREFIX)/lib
@@ -76,7 +87,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  LDPREFIX = PATH=$(SOLIB):$$PATH;export PATH;
  RUNLDPREFIX = PATH=$(CBF_PREFIX)/lib:$$PATH;export PATH;
  EXTRALIBS = -L/mingw32/bin -lm -lws2_32
-@@ -1123,16 +1143,16 @@
+@@ -1123,16 +1139,16 @@
  JAVAINCLUDES = -I$(JDKDIR)/include -I$(JDKDIR)/include/linux
  ifeq ($(HDF5_PREFIX),)
  LDPREFIX = LD_LIBRARY_PATH=$(SOLIB):$(LIB):$$LD_LIBRARY_PATH;export LD_LIBRARY_PATH;
@@ -96,7 +107,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  F90C =
  endif
  
-@@ -1264,8 +1284,6 @@
+@@ -1264,8 +1280,6 @@
  	$(SRC)/cbf_copy.c          \
  	$(SRC)/cbf_file.c          \
  	$(SRC)/cbf_getopt.c        \
@@ -105,7 +116,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(SRC)/cbf_lex.c           \
  	$(SRC)/cbf_minicbf_header.c\
  	$(SRC)/cbf_nibble_offset.c \
-@@ -1286,6 +1304,10 @@
+@@ -1286,6 +1300,10 @@
  	$(SRC)/md5c.c              \
  	$(SRC)/img.c               \
  	$(SRC_FGETLN) $(SRC_REALPATH)
@@ -116,7 +127,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  
  ifneq ($(CBFLIB_DONT_USE_PY2CIFRW),yes)
  PY2SOURCE  = $(SRC)/drel_lex.py		   \
-@@ -1301,6 +1323,7 @@
+@@ -1301,6 +1319,7 @@
  	$(SRC)/drel_prep.py
  endif
  
@@ -124,7 +135,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  F90SOURCE = $(SRC)/fcb_atol_wcnt.f90     \
  	$(SRC)/fcb_ci_strncmparr.f90 \
  	$(SRC)/fcb_exit_binary.f90   \
-@@ -1314,7 +1337,7 @@
+@@ -1314,7 +1333,7 @@
  	$(SRC)/fcb_read_line.f90     \
  	$(SRC)/fcb_read_xds_i2.f90   \
  	$(SRC)/fcb_skip_whitespace.f90
@@ -133,7 +144,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	
  #
  # Header files
-@@ -1333,8 +1356,6 @@
+@@ -1333,8 +1352,6 @@
  	$(INCLUDE)/cbf_copy.h          \
  	$(INCLUDE)/cbf_file.h          \
  	$(INCLUDE)/cbf_getopt.h        \
@@ -142,7 +153,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(INCLUDE)/cbf_lex.h           \
  	$(INCLUDE)/cbf_minicbf_header.h\
  	$(INCLUDE)/cbf_nibble_offset.h \
-@@ -1355,6 +1376,10 @@
+@@ -1355,6 +1372,10 @@
  	$(INCLUDE)/cbff.h              \
  	$(INCLUDE)/md5.h               \
  	$(INCLUDE)/img.h
@@ -153,7 +164,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  
  #
  # m4 macro files
-@@ -1514,7 +1539,7 @@
+@@ -1514,7 +1535,7 @@
  endif
  
  
@@ -162,7 +173,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(SWIG_FORTRAN_KIT)   \
          $(SWIG_KIT)           \
  	$(HDF5)               \
-@@ -1528,8 +1553,6 @@
+@@ -1528,8 +1549,6 @@
  	$(REGEXDEP)           \
  	$(LIB)                \
  	$(LIB)/libcbf.a       \
@@ -171,7 +182,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(LIB)/libimg.a       \
  	$(BIN)/adscimg2cbf    \
  	$(BIN)/arvai_test     \
-@@ -1559,7 +1582,10 @@
+@@ -1559,7 +1578,10 @@
  	$(BIN)/cbf_testxfelread
  
  ifneq ($(F90C),)
@@ -183,7 +194,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(BIN)/test_fcb_read_image
  endif
  
-@@ -1575,7 +1601,10 @@
+@@ -1575,7 +1597,10 @@
  SO_LIB__FCB = $(SO_PREFIX)_fcb.$(SO_EXT)
  SO_LIB__F90CBF = $(SO_PREFIX)_f90cbf.$(SO_EXT)
  
@@ -195,7 +206,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  
  SO_LIB_CBF_WRAP = $(SO_PREFIX)cbf_wrap.$(SO_EXT)
  javawrapper: shared $(JCBF) $(JCBF)/cbflib-$(VERSION).jar $(SOLIB)/$(SO_LIB_CBF_WRAP)
-@@ -1716,14 +1745,14 @@
+@@ -1716,14 +1741,14 @@
  	-chmod 755 $(CBF_PREFIX)/lib/libimg.a
  	-cp $(CBF_PREFIX)/lib/libimg.a $(CBF_PREFIX)/lib/libimg_old.a
  	cp $(LIB)/libimg.a $(CBF_PREFIX)/lib/libimg.a
@@ -212,7 +223,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	-chmod 755 $(CBF_PREFIX)/lib/$(SO_LIB_CBF)
  	-cp $(CBF_PREFIX)/lib/$(SO_LIB_CBF) $(CBF_PREFIX)/lib/$(SO_LIB_CBF)_old
  	cp $(SOLIB)/$(SO_LIB_CBF) $(CBF_PREFIX)/lib/
-@@ -1732,18 +1761,16 @@
+@@ -1732,18 +1757,16 @@
  	-cp $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB_IMG)_old
  	cp $(SOLIB)/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/
  	$(LN) $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB__IMG)
@@ -233,7 +244,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	echo  "HDF5_PLUGIN_PATH=$(CBF_PREFIX)/lib:$$HDF5_PLUGIN_PATH" >> $(CBF_PREFIX)/bin/cbflib.ini
  	echo  "export HDF5_PLUGIN_PATH" >> $(CBF_PREFIX)/bin/cbflib.ini
  	-cp $(CBF_PREFIX)/bin/adscimg2cbf $(CBF_PREFIX)/bin/adscimg2cbf_old
-@@ -1812,12 +1839,14 @@
+@@ -1812,12 +1835,14 @@
  	cp -r $(INCLUDE) $(CBF_PREFIX)/include/cbflib
  	chmod 644 $(CBF_PREFIX)/lib/libcbf.a
  	chmod 644 $(CBF_PREFIX)/lib/libimg.a
@@ -250,7 +261,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	chmod 755 $(CBF_PREFIX)/bin/arvai_test
  	chmod 755 $(CBF_PREFIX)/bin/cbf2nexus
  	chmod 755 $(CBF_PREFIX)/bin/cbf_standardize_numbers
-@@ -3110,6 +3139,7 @@
+@@ -3110,6 +3135,7 @@
  	cp $(PY2CBF)/fel_test1.out $(DATADIRO)/fel_test1_orig.out
  	cp $(PY2CBF)/fel_test2.out $(DATADIRO)/fel_test2_orig.out
  	cp $(PY2CBF)/fel_test3.out $(DATADIRO)/fel_test3_orig.out
@@ -258,7 +269,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  
  restore_signatures:	restore_output
  	
-@@ -3164,6 +3194,7 @@
+@@ -3164,6 +3190,7 @@
  	$(BIN)/testreals $(BIN)/testflat $(BIN)/testflatpacked \
  	$(BIN)/convert_minicbf \
  	$(BIN)/sauter_test $(BIN)/adscimg2cbf $(BIN)/cbf2adscimg \
@@ -266,7 +277,7 @@ diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
  	$(BIN)/testhdf5 $(BIN)/testalloc \
  	$(BIN_TESTULP) \
  	basic $(TESTINPUT_EXTRA) $(TESTOUTPUT) $(EXAMPLES)/batch_convert_minicbf.sh
-@@ -3368,7 +3399,11 @@
+@@ -3368,7 +3395,11 @@
  
  endif
  

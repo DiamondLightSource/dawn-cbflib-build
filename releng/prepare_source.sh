@@ -18,6 +18,7 @@ if [ ! -d "${CBFLIB_DIR}" ]; then
   patch -p1 < releng/make.patch
   patch -p1 < releng/no-hdf5.patch
   patch -p1 < releng/pointer-leak.patch
+  patch -p1 < releng/win32.patch
   popd
 fi
 
