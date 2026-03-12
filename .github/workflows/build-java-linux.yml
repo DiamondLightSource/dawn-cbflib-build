@@ -1,5 +1,5 @@
 
-name: Build Linux and Windows Java OSGi bundles for use in Dawn
+name: Build Linux Java OSGi bundles for use in Dawn
 
 # Controls when the action will run. 
 on:
