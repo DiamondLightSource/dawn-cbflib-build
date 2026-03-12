@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+brew install coreutils # for readlink, realpath and sha256sum
+
 source releng/prepare_source.sh
 
 MTIME_M4=$(stat -f %m m4/Makefile.m4)
@@ -11,7 +13,7 @@ while [ $MTIME_M4 -le $MTIME_MF ]; do
   MTIME_M4=$(stat -f %m m4/Makefile.m4)
 done
 
-brew install coreutils # for readlink and realpath
+brew install swig
 brew install openjdk@11
 
 if [ -z "$HOMEBREW_PREFIX" ]; then

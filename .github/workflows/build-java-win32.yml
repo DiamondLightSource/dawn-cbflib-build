@@ -1,4 +1,5 @@
-name: Build macOS Java OSGi bundles for use in Dawn
+
+name: Build Windows Java OSGi bundles for use in Dawn
 
 # Controls when the action will run. 
 on:
@@ -22,22 +23,26 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: macos-14 # For >= Sonoma (on M1), can target 10.13 (High Sierra)
+    runs-on: windows-2022
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
 
-      - name: Make macOS bindings
+      - name: Make Windows bindings
         run: |
-          ./releng/build_macos_bindings.sh
+          C:\msys64\usr\bin\bash.exe -lc 'export PATH=/c/msys64/mingw64/bin:/c/msys64/usr/bin:"$PATH"; cd "$GITHUB_WORKSPACE" && ./releng/build_win32_bindings.sh'
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+        # if: ${{ failure() }}
         with:
           limit-access-to-actor: true
 
       - uses: actions/upload-artifact@v7
         with:
-          name: cbflib-build-macos
+          name: cbflib-build-win32
           path: dist
+
