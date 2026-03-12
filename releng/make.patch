@@ -6,13 +6,11 @@
 # Fix issues with Makefiles
 #   Correct library path set wrongly in default Makefile, make sure no-fortran
 #   case does not build fortran parts, and tidy up whitespaces
-# Fix recursive HDF5CFLAGS
 #
 diff --git a/m4/Makefile.m4 b/m4/Makefile.m4
-index a991477..426fa22 100644
---- a/m4/Makefile.m4
-+++ b/m4/Makefile.m4
-@@ -284,6 +284,8 @@ CBF_PREFIX  ?= $(HOME)
+--- CBFlib-0.9.8/m4/Makefile.m4	2025-04-10 23:52:19.000000000 +0100
++++ CBFlib-0.9.8-new/m4/Makefile.m4	2026-03-12 10:27:27.607960099 +0000
+@@ -285,6 +285,8 @@
  #
  CLEANTESTS = yes
  
@@ -21,70 +19,55 @@ index a991477..426fa22 100644
  'm4_ifelse(cbf_system,`MSYS2',`
  MSYS2=yes
  CBFLIB_DONT_USE_LOCAL_HDF5?=yes
-@@ -307,6 +309,13 @@ NUWEB_DEP2=$(BIN)/nuweb
- endif
+@@ -298,6 +300,13 @@
+ CBFLIB_DONT_USE_ZSTD?=no
+ ')`
  
- 
-+ifeq ($(CBFLIB_DONT_BUILD_HDF5),yes)
++ifneq ($(CBFLIB_DONT_BUILD_HDF5),no)
 +CBFLIB_DONT_USE_LOCAL_HDF5=yes
 +CBFLIB_DONT_USE_LZ4=yes
 +CBFLIB_DONT_USE_BSHUF=yes
 +CBFLIB_DONT_USE_BLOSC=yes
 +endif
 +
- 
- CBFLIB_DONT_HAVE_FGETLN ?= yes
- ifeq ($(CBFLIB_DONT_HAVE_FGETLN),yes)
-@@ -357,11 +366,11 @@ endif
- 
- 'm4_ifelse(cbf_system,`LINUX',`
- HDF5PTHREAD = -lpthread
--HDF5CFLAGS=$(HDF5CFLAGS) -fPIC
-+HDF5CFLAGS:=$(HDF5CFLAGS) -fPIC
- ',
- cbf_system,`default',`
- HDF5PTHREAD = -lpthread
--HDF5CFLAGS=$(HDF5CFLAGS) -fPIC
-+HDF5CFLAGS:=$(HDF5CFLAGS) -fPIC
- ')`
- ifneq ($(CBFLIB_DONT_USE_LOCAL_HDF5),yes)
- HDF5_PREFIX ?= $(PWD)
-@@ -417,6 +426,12 @@ else
- H5DUMP = /MINGW32/bin/h5dump
- endif
- 
-+ifeq ($(CBFLIB_DONT_BUILD_HDF5),yes)
-+HDF5LIBS_LOCAL =
-+HDF5LIBS_SYSTEM =
-+HDF5SOLIBS_LOCAL =
-+HDF5SOLIBS_SYSTEM =
-+endif
- 
- CBFLIB_DONT_USE_LZ4 ?= no
- ifneq ($(CBFLIB_DONT_USE_LZ4),yes)
-@@ -637,8 +652,10 @@ BSHUFFLAG =
- endif
+ CBFLIB_DONT_USE_LOCAL_NUWEB ?= no
+ ifeq ($(CBFLIB_DONT_USE_LOCAL_NUWEB),yes)
+ NUWEB=nuweb
+@@ -406,7 +415,12 @@
+   ifneq ($(HDF5_PREFIX),)
+     HDF5lib = -L$(HDF5_PREFIX)/lib
+   endif
+-  ifneq ($(MSYS2),yes)
++  ifneq ($(CBFLIB_DONT_BUILD_HDF5),no)
++    HDF5LIBS_LOCAL =
++    HDF5LIBS_SYSTEM =
++    HDF5SOLIBS_LOCAL =
++    HDF5SOLIBS_SYSTEM =
++  else ifneq ($(MSYS2),yes)
+     HDF5LIBS_SYSTEM = $(HDF5lib) -lhdf5 -lz -ldl -lsz -laec -llzma -ljpeg 
+     HDF5SOLIBS_LOCAL =
+     HDF5SOLIBS_SYSTEM = $(HDF5lib) -lhdf5 -lz -lsz -laec -llzma -ljpeg
+@@ -712,6 +726,9 @@
  
  
--
  MISCFLAG = $(NOLLFLAG) $(ULPFLAG)
-+ifneq ($(CBFLIB_DONT_BUILD_HDF5),yes)
++ifeq ($(CBFLIB_DONT_BUILD_HDF5),no)
 +MISCFLAG += -DUSE_HDF5
 +endif
  
+ ifneq ($(CBFLIB_DONT_USE_PY2CIFRW),yes)
  #
- # PY2CBF definitions
-@@ -950,6 +967,9 @@ SOCFLAGS = -D_JNI_IMPLEMENTATION_
- SOLDFLAGS = -shared
- SOLDEXPORT=-Wl,--out-implib,solib/cbf.lib
+@@ -995,6 +1012,9 @@
+ SOCFLAGS = -D_JNI_IMPLEMENTATION_
+ SOLDFLAGS = -shared -Wl,--kill-at
  JAVAINCLUDES = -I$(JDKDIR)/include -I$(JDKDIR)/include/win32
 +JAVA = java
 +JAVAC = javac
 +JAR = jar
  EXTRALIBS = -lm
  TIME =
- SLFLAGS = --use_cp
-@@ -976,7 +996,7 @@ F90FLAGS = -g -fno-range-check -fallow-invalid-boz
+ PY2CBFEXT = pyd
+@@ -1061,7 +1081,7 @@
  F90LDFLAGS = 
  SOCFLAGS = -fPIC
  SOLDFLAGS = -shared -Wl,-rpath,$(CBF_PREFIX)/lib
@@ -93,7 +76,7 @@ index a991477..426fa22 100644
  LDPREFIX = PATH=$(SOLIB):$$PATH;export PATH;
  RUNLDPREFIX = PATH=$(CBF_PREFIX)/lib:$$PATH;export PATH;
  EXTRALIBS = -L/mingw32/bin -lm -lws2_32
-@@ -1037,16 +1057,16 @@ SOLDFLAGS = -shared -Wl,-rpath,$(CBF_PREFIX)/lib
+@@ -1123,16 +1143,16 @@
  JAVAINCLUDES = -I$(JDKDIR)/include -I$(JDKDIR)/include/linux
  ifeq ($(HDF5_PREFIX),)
  LDPREFIX = LD_LIBRARY_PATH=$(SOLIB):$(LIB):$$LD_LIBRARY_PATH;export LD_LIBRARY_PATH;
@@ -113,7 +96,7 @@ index a991477..426fa22 100644
  F90C =
  endif
  
-@@ -1153,8 +1173,6 @@ SOURCE   =  $(SRC)/cbf.c               \
+@@ -1264,8 +1284,6 @@
  	$(SRC)/cbf_copy.c          \
  	$(SRC)/cbf_file.c          \
  	$(SRC)/cbf_getopt.c        \
@@ -122,18 +105,18 @@ index a991477..426fa22 100644
  	$(SRC)/cbf_lex.c           \
  	$(SRC)/cbf_minicbf_header.c\
  	$(SRC)/cbf_nibble_offset.c \
-@@ -1175,6 +1193,10 @@ SOURCE   =  $(SRC)/cbf.c               \
+@@ -1286,6 +1304,10 @@
  	$(SRC)/md5c.c              \
  	$(SRC)/img.c               \
  	$(SRC_FGETLN) $(SRC_REALPATH)
-+ifneq ($(CBFLIB_DONT_BUILD_HDF5),yes)
++ifeq ($(CBFLIB_DONT_BUILD_HDF5),no)
 +SOURCE  += $(SRC)/cbf_hdf5.c \
 +	$(SRC)/cbf_hdf5_filter.c
 +endif
  
  ifneq ($(CBFLIB_DONT_USE_PY2CIFRW),yes)
  PY2SOURCE  = $(SRC)/drel_lex.py		   \
-@@ -1190,6 +1212,7 @@ PY3SOURCE  = $(SRC)/drel_lex.py		   \
+@@ -1301,6 +1323,7 @@
  	$(SRC)/drel_prep.py
  endif
  
@@ -141,18 +124,16 @@ index a991477..426fa22 100644
  F90SOURCE = $(SRC)/fcb_atol_wcnt.f90     \
  	$(SRC)/fcb_ci_strncmparr.f90 \
  	$(SRC)/fcb_exit_binary.f90   \
-@@ -1203,8 +1226,8 @@ F90SOURCE = $(SRC)/fcb_atol_wcnt.f90     \
+@@ -1314,7 +1337,7 @@
  	$(SRC)/fcb_read_line.f90     \
  	$(SRC)/fcb_read_xds_i2.f90   \
  	$(SRC)/fcb_skip_whitespace.f90
 -	
--	
 +endif
-+
+ 	
  #
  # Header files
- #
-@@ -1221,8 +1244,6 @@ HEADERS   =  $(INCLUDE)/cbf.h               \
+@@ -1333,8 +1356,6 @@
  	$(INCLUDE)/cbf_copy.h          \
  	$(INCLUDE)/cbf_file.h          \
  	$(INCLUDE)/cbf_getopt.h        \
@@ -161,49 +142,77 @@ index a991477..426fa22 100644
  	$(INCLUDE)/cbf_lex.h           \
  	$(INCLUDE)/cbf_minicbf_header.h\
  	$(INCLUDE)/cbf_nibble_offset.h \
-@@ -1243,6 +1264,10 @@ HEADERS   =  $(INCLUDE)/cbf.h               \
+@@ -1355,6 +1376,10 @@
  	$(INCLUDE)/cbff.h              \
  	$(INCLUDE)/md5.h               \
  	$(INCLUDE)/img.h
-+ifneq ($(CBFLIB_DONT_BUILD_HDF5),yes)
-+HEADERS  += $(INCLUDE)/cbf_hdf5.h \
-+	$(INCLUDE)/cbf_hdf5_filter.h
++ifeq ($(CBFLIB_DONT_BUILD_HDF5),no)
++HEADERS  += $(INCLUDE)/cbf_hdf5.c \
++	$(INCLUDE)/cbf_hdf5_filter.c
 +endif
  
  #
  # m4 macro files
-@@ -1396,7 +1421,7 @@ BSHUFDEPS =
+@@ -1514,7 +1539,7 @@
  endif
  
  
 -all::	$(BIN) $(SOURCE) $(F90SOURCE) $(HEADERS) \
 +all::	$(BIN) $(SOURCE) $(HEADERS) \
+ 	$(SWIG_FORTRAN_KIT)   \
+         $(SWIG_KIT)           \
  	$(HDF5)               \
- 	$(LZ4DEPS)            \
- 	$(BSHUFDEPS)          \
-@@ -1435,7 +1460,8 @@ all::	$(BIN) $(SOURCE) $(F90SOURCE) $(HEADERS) \
+@@ -1528,8 +1553,6 @@
+ 	$(REGEXDEP)           \
+ 	$(LIB)                \
+ 	$(LIB)/libcbf.a       \
+-	$(LIB)/libfcb.a       \
+-	$(LIB)/libf90cbf.a    \
+ 	$(LIB)/libimg.a       \
+ 	$(BIN)/adscimg2cbf    \
+ 	$(BIN)/arvai_test     \
+@@ -1559,7 +1582,10 @@
  	$(BIN)/cbf_testxfelread
  
  ifneq ($(F90C),)
 -all::	$(BIN)/test_xds_binary   \
 +all::	$(F90SOURCE) \
++	$(LIB)/libfcb.a       \
++	$(LIB)/libf90cbf.a    \
 +	$(BIN)/test_xds_binary   \
  	$(BIN)/test_fcb_read_image
  endif
  
-@@ -1449,7 +1475,10 @@ SO_LIB__CBF = $(SO_PREFIX)_cbf.$(SO_EXT)
- SO_LIB__IMG = $(SO_PREFIX)_img.$(SO_EXT)
+@@ -1575,7 +1601,10 @@
  SO_LIB__FCB = $(SO_PREFIX)_fcb.$(SO_EXT)
+ SO_LIB__F90CBF = $(SO_PREFIX)_f90cbf.$(SO_EXT)
  
--shared:	$(SOLIB)/$(SO_LIB_CBF) $(SOLIB)/$(SO_LIB_IMG) $(SOLIB)/$(SO_LIB_FCB)
+-shared:	$(SOLIB)/$(SO_LIB_CBF) $(SOLIB)/$(SO_LIB_IMG) $(SOLIB)/$(SO_LIB_FCB) $(SOLIB)/$(SO_LIB_F90CBF)
 +shared::	$(SOLIB)/$(SO_LIB_CBF) $(SOLIB)/$(SO_LIB_IMG)
 +ifneq ($(F90C),)
-+shared::	$(SOLIB)/$(SO_LIB_FCB)
++shared::	$(SOLIB)/$(SO_LIB_FCB) $(SOLIB)/$(SO_LIB_F90CBF)
 +endif
  
  SO_LIB_CBF_WRAP = $(SO_PREFIX)cbf_wrap.$(SO_EXT)
  javawrapper: shared $(JCBF) $(JCBF)/cbflib-$(VERSION).jar $(SOLIB)/$(SO_LIB_CBF_WRAP)
-@@ -1601,10 +1630,12 @@ baseinstall:  all $(CBF_PREFIX) $(CBF_PREFIX)/lib $(CBF_PREFIX)/bin \
+@@ -1716,14 +1745,14 @@
+ 	-chmod 755 $(CBF_PREFIX)/lib/libimg.a
+ 	-cp $(CBF_PREFIX)/lib/libimg.a $(CBF_PREFIX)/lib/libimg_old.a
+ 	cp $(LIB)/libimg.a $(CBF_PREFIX)/lib/libimg.a
++ifneq ($(F90C),)
+ 	-chmod 755 $(CBF_PREFIX)/lib/libfcb.a
+ 	-cp $(CBF_PREFIX)/lib/libfcb.a $(CBF_PREFIX)/lib/libfcb_old.a
+ 	cp $(LIB)/libfcb.a $(CBF_PREFIX)/lib/libfcb.a
+-	-chmod 755 $(CBF_PREFIX)/lib/$(SO_LIB_CBF)
+-	-cp $(CBF_PREFIX)/lib/$(SO_LIB_CBF) $(CBF_PREFIX)/lib/$(SO_LIB_CBF)_old
+ 	-chmod 755 $(CBF_PREFIX)/lib/libf90cbf.a
+ 	-cp $(CBF_PREFIX)/lib/libf90cbf.a $(CBF_PREFIX)/lib/libf90cbf_old.a
+ 	cp $(LIB)/libf90cbf.a $(CBF_PREFIX)/lib/libf90cbf.a
++endif
+ 	-chmod 755 $(CBF_PREFIX)/lib/$(SO_LIB_CBF)
+ 	-cp $(CBF_PREFIX)/lib/$(SO_LIB_CBF) $(CBF_PREFIX)/lib/$(SO_LIB_CBF)_old
+ 	cp $(SOLIB)/$(SO_LIB_CBF) $(CBF_PREFIX)/lib/
+@@ -1732,18 +1761,16 @@
  	-cp $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB_IMG)_old
  	cp $(SOLIB)/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/
  	$(LN) $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB__IMG)
@@ -212,278 +221,44 @@ index a991477..426fa22 100644
  	-cp $(CBF_PREFIX)/lib/$(SO_LIB_FCB) $(CBF_PREFIX)/lib/$(SO_LIB_FCB)_old
  	cp $(SOLIB)/$(SO_LIB_FCB) $(CBF_PREFIX)/lib/
  	$(LN) $(CBF_PREFIX)/lib/$(SO_LIB_FCB) $(CBF_PREFIX)/lib/$(SO_LIB__FCB)
+-	-chmod 755 $(CBF_PREFIX)/lib/$(SO_LIB_IMG)
+-	-cp $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB_IMG)_old
+-	cp $(SOLIB)/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/
+-	$(LN) $(CBF_PREFIX)/lib/$(SO_LIB_IMG) $(CBF_PREFIX)/lib/$(SO_LIB__IMG)
+ 	-chmod 755 $(CBF_PREFIX)/lib/$(SO_LIB_F90CBF)
+ 	-cp $(CBF_PREFIX)/lib/$(SO_LIB_F90CBF) $(CBF_PREFIX)/lib/$(SO_LIB_F90CBF)_old
+ 	cp $(SOLIB)/$(SO_LIB_F90CBF) $(CBF_PREFIX)/lib/
+ 	$(LN) $(CBF_PREFIX)/lib/$(SO_LIB_F90CBF) $(CBF_PREFIX)/lib/$(SO_LIB__F90CBF)
 +endif
- 	-cp $(CBF_PREFIX)/bin/cbflib.ini $(CBF_PREFIX)/bin/cbflib.ini_old
- 	echo  "$(RUNLDPREFIX)" > $(CBF_PREFIX)/bin/cbflib.ini
  	echo  "HDF5_PLUGIN_PATH=$(CBF_PREFIX)/lib:$$HDF5_PLUGIN_PATH" >> $(CBF_PREFIX)/bin/cbflib.ini
-@@ -1614,7 +1645,7 @@ baseinstall:  all $(CBF_PREFIX) $(CBF_PREFIX)/lib $(CBF_PREFIX)/bin \
- 	-cp $(CBF_PREFIX)/bin/cbf2adscimg $(CBF_PREFIX)/bin/cbf2adscimg_old
- 	cp $(BIN)/cbf2adscimg $(CBF_PREFIX)/bin/cbf2adscimg
- 	-cp $(CBF_PREFIX)/bin/cbf_standardize_numbers \
--		$(CBF_PREFIX)/bin/cbf_standardize_numbers_old
-+	  $(CBF_PREFIX)/bin/cbf_standardize_numbers_old
- 	cp $(BIN)/cbf_standardize_numbers $(CBF_PREFIX)/bin/cbf_standardize_numbers
- 	-cp $(CBF_PREFIX)/bin/convert_image $(CBF_PREFIX)/bin/convert_image_old
- 	cp $(BIN)/convert_image $(CBF_PREFIX)/bin/convert_image
-@@ -1718,7 +1749,7 @@ $(PY2CIFRW):	build_py2cifrw
- 	tar -xvf $(PY2CIFRW).tar.gz
- 	-rm $(PY2CIFRW).tar.gz
- 	(cd $(PY2CIFRW); \
--        PYTHONPATH=$(PY2CIFRW_PREFIX)/lib/python:$(PY2CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
-+	 PYTHONPATH=$(PY2CIFRW_PREFIX)/lib/python:$(PY2CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
- 	mkdir -p $(PY2CIFRW_PREFIX)/lib/python/site-packages; \
- 	mkdir -p $(PY2CIFRW_PREFIX)/lib64/python/site-packages; \
- 	$(PYTHON2) setup.py install --prefix= --home=$(PY2CIFRW_PREFIX) )
-@@ -1735,7 +1766,7 @@ $(PY2PLY):	build_py2ply
- 	tar -xvf $(PY2PLY).tar.gz
- 	-rm $(PY2PLY).tar.gz
- 	(cd $(PY2PLY); \
--	PYTHONPATH=$(PY2CIFRW_PREFIX)/lib/python:$(PY2CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
-+	 PYTHONPATH=$(PY2CIFRW_PREFIX)/lib/python:$(PY2CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
- 	mkdir -p $(PY2CIFRW_PREFIX)/lib/python/site-packages; \
- 	mkdir -p $(PY2CIFRW_PREFIX)/lib64/python/site-packages; \
- 	$(PYTHON2) setup.py install --prefix= --home=$(PY2CIFRW_PREFIX) )
-@@ -1754,7 +1785,7 @@ $(PY3CIFRW):    build_py3cifrw
- 	tar -xvf $(PY3CIFRW).tar.gz
- 	-rm $(PY3CIFRW).tar.gz
- 	(cd $(PY3CIFRW); \
--	PYTHONPATH=$(PY3CIFRW_PREFIX)/lib/python:$(PY3CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
-+	 PYTHONPATH=$(PY3CIFRW_PREFIX)/lib/python:$(PY3CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
- 	mkdir -p $(PY3CIFRW_PREFIX)/lib/python/site-packages; \
- 	mkdir -p $(PY3CIFRW_PREFIX)/lib64/python/site-packages; \
- 	$(PYTHON3) setup.py install --prefix= --home=$(PY3CIFRW_PREFIX) )
-@@ -1771,10 +1802,10 @@ $(PY3PLY):      build_py3ply
- 	tar -xvf $(PY3PLY).tar.gz
- 	-rm $(PY3PLY).tar.gz
- 	(cd $(PY3PLY); \
--	PYTHONPATH=$(PY3CIFRW_PREFIX)/lib/python:$(PY3CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
--	mkdir -p $(PY3CIFRW_PREFIX)/lib/python/site-packages; \
--	mkdir -p $(PY3CIFRW_PREFIX)/lib64/python/site-packages; \
--	$(PYTHON3) setup.py install --prefix= --home=$(PY3CIFRW_PREFIX) )
-+	 PYTHONPATH=$(PY3CIFRW_PREFIX)/lib/python:$(PY3CIFRW_PREFIX)/lib64/python; export PYTHONPATH; \
-+	 mkdir -p $(PY3CIFRW_PREFIX)/lib/python/site-packages; \
-+	 mkdir -p $(PY3CIFRW_PREFIX)/lib64/python/site-packages; \
-+	 $(PYTHON3) setup.py install --prefix= --home=$(PY3CIFRW_PREFIX) )
- endif
+ 	echo  "export HDF5_PLUGIN_PATH" >> $(CBF_PREFIX)/bin/cbflib.ini
+ 	-cp $(CBF_PREFIX)/bin/adscimg2cbf $(CBF_PREFIX)/bin/adscimg2cbf_old
+@@ -1812,12 +1839,14 @@
+ 	cp -r $(INCLUDE) $(CBF_PREFIX)/include/cbflib
+ 	chmod 644 $(CBF_PREFIX)/lib/libcbf.a
+ 	chmod 644 $(CBF_PREFIX)/lib/libimg.a
++ifneq ($(F90C),)
+ 	chmod 644 $(CBF_PREFIX)/lib/libfcb.a
+ 	chmod 644 $(CBF_PREFIX)/lib/libf90cbf.a
+-	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)cbf.$(SO_EXT)
+-	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)img.$(SO_EXT)
+ 	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)fcb.$(SO_EXT)
+ 	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)f90cbf.$(SO_EXT)
++endif
++	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)cbf.$(SO_EXT)
++	chmod 755 $(CBF_PREFIX)/lib/$(SO_PREFIX)img.$(SO_EXT)
+ 	chmod 755 $(CBF_PREFIX)/bin/arvai_test
+ 	chmod 755 $(CBF_PREFIX)/bin/cbf2nexus
+ 	chmod 755 $(CBF_PREFIX)/bin/cbf_standardize_numbers
+@@ -3110,6 +3139,7 @@
+ 	cp $(PY2CBF)/fel_test1.out $(DATADIRO)/fel_test1_orig.out
+ 	cp $(PY2CBF)/fel_test2.out $(DATADIRO)/fel_test2_orig.out
+ 	cp $(PY2CBF)/fel_test3.out $(DATADIRO)/fel_test3_orig.out
++	
  
- 
-@@ -1810,14 +1841,14 @@ $(REGEX):   build_regex
- 	-rm $(REGEX).tar.gz
- 	cp config.guess config.sub $(REGEX)
- 	(cd $(REGEX); \
--	prefix=$(REGEX_PREFIX); export prefix; \
--	./configure --prefix=$(REGEX_PREFIX); make install)
-+	 prefix=$(REGEX_PREFIX); export prefix; \
-+	 ./configure --prefix=$(REGEX_PREFIX); make install)
- 	@-cp $(REGEX_PREFIX)/include/pcreposix.h $(REGEX_PREFIX)/include/regex.h
- $(REGEX)_INSTALL:   $(REGEX)
- 	-rm -rf $(REGEX)_install
- 	rsync -avz $(REGEX)/ $(REGEX)_install
- 	(cd $(REGEX)_install; prefix=$(CBF_PREFIX); export prefix; \
--	make distclean; ./configure --prefix=$(CBF_PREFIX); make install )
-+	 make distclean; ./configure --prefix=$(CBF_PREFIX); make install )
- 	@-cp $(CBF_PREFIX)/include/pcreposix.h $(CBF_PREFIX)/include/regex.h
- 
- #
-@@ -1834,12 +1865,12 @@ $(TIFF):	build_tiff config.guess config.sub
- 	-rm $(TIFF).tar.gz
- 	cp config.guess config.sub $(TIFF)/config/
- 	(cd $(TIFF); prefix=$(TIFF_PREFIX); export prefix; \
--	./configure --prefix=$(TIFF_PREFIX); make install)
-+	 ./configure --prefix=$(TIFF_PREFIX); make install)
- $(TIFF)_INSTALL:    $(TIFF)
- 	-rm -rf $(TIFF)_install
- 	rsync -avz $(TIFF)/  $(TIFF)_install
- 	(cd $(TIFF)_install; make distclean; prefix=$(CBF_PREFIX); export prefix; \
--	./configure --prefix=$(CBF_PREFIX); make install)
-+	 ./configure --prefix=$(CBF_PREFIX); make install)
- 
- 
- ifneq ($(CBFLIB_DONT_USE_LOCAL_HDF5),yes)
-@@ -1894,10 +1925,10 @@ ifneq ($(MSYS2),yes)
- 	tar -xvf $(LZ4).tar.gz
- 	-rm $(LZ4).tar.gz
- 	(cp $(LZ4include)/lz4.h $(INCLUDE); \
--	$(CC) $(CFLAGS) $(SOWCFLAGS) $(INCLUDES) $(WARNINGS) -c $(LZ4src)/lz4.c -o lz4.o; \
--	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(LZ4src)/h5zlz4.c -o h5zlz4.o; \
--	$(CC) -shared lz4.o h5zlz4.o -o $(SOLIB)/libh5zlz4.so; \
--	rm lz4.o h5zlz4.o)
-+	 $(CC) $(CFLAGS) $(SOWCFLAGS) $(INCLUDES) $(WARNINGS) -c $(LZ4src)/lz4.c -o lz4.o; \
-+	 $(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(LZ4src)/h5zlz4.c -o h5zlz4.o; \
-+	 $(CC) -shared lz4.o h5zlz4.o -o $(SOLIB)/libh5zlz4.so; \
-+	 rm lz4.o h5zlz4.o)
- else
- 	git clone $(LZ4_URL)
- 	(cd $(LZ4); mkdir build; cd build; cmake .. -G ''`MSYS Makefiles''` -DENABLE_LZ4_PLUGIN="yes"; make all; cp plugins/* $(SOLIB))
-@@ -1921,9 +1952,9 @@ $(BSHUF): $(HDF5)  build_BSHUF $(LZ4dep)
- 	tar -xvf $(BSHUF).tar.gz
- 	-rm $(BSHUF).tar.gz
- 	(cp $(BSHUFinclude)/bitshuffle.h \
--	    $(BSHUFinclude)/bitshuffle_core.h \
--	    $(BSHUFinclude)/bitshuffle_internals.h \
--	    $(BSHUFinclude)/bshuf_h5filter.h $(BSHUFinclude)/iochain.h   $(INCLUDE); \
-+	 $(BSHUFinclude)/bitshuffle_core.h \
-+	 $(BSHUFinclude)/bitshuffle_internals.h \
-+	 $(BSHUFinclude)/bshuf_h5filter.h $(BSHUFinclude)/iochain.h   $(INCLUDE); \
- 	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(BSHUFsrc)/bshuf_h5filter.c -o bshuf_h5filter.o; \
- 	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(BSHUFsrc)/bitshuffle.c -o bitshuffle.o; \
- 	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(BSHUFsrc)/bitshuffle_core.c -o bitshuffle_core.o; \
-@@ -1931,10 +1962,10 @@ $(BSHUF): $(HDF5)  build_BSHUF $(LZ4dep)
- 	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(BSHUFsrc)/iochain.c  -o iochain.o; \
- 	$(CC) $(CFLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(BSHUFsrc)/../lz4/lz4.c  -o lz4.o; \
- 	$(CC) -shared bshuf_h5filter.o bitshuffle.o bitshuffle_core.o iochain.o lz4.o $(HDF5SOLIBS_LOCAL) $(HDF5SOLIBS_SYSTEM)\
--	    -o $(SOLIB)/libh5zbshuf.so; \
-+	  -o $(SOLIB)/libh5zbshuf.so; \
- 	$(CC) -shared bshuf_h5filter.o bitshuffle.o bitshuffle_core.o lz4.o bshuf_h5plugin.o iochain.o \
--	    $(HDF5SOLIBS_LOCAL) \
--	    $(HDF5SOLIBS_SYSTEM) -o $(SOLIB)/$(BSHUFFILTER).so; \
-+	  $(HDF5SOLIBS_LOCAL) \
-+	  $(HDF5SOLIBS_SYSTEM) -o $(SOLIB)/$(BSHUFFILTER).so; \
- 	rm bshuf_h5filter.o bitshuffle.o lz4.o iochain.o bshuf_h5plugin.o)
- 	touch $(BSHUF)
- endif
-@@ -2065,28 +2096,19 @@ CBF_IMG_LIBS:  $(LIB)/libcbf.a $(LIB)/libimg.a
- #
- $(LIB)/libfcb.a: $(F90SOURCE) $(COMMONDEP) $(HDF5)
- 	mkdir -p $(LIB)
--ifneq ($(F90C),)
- 	$(F90C) $(F90FLAGS) -c $(F90SOURCE)
- 	$(AR) cr $@ *.o
- ifneq ($(RANLIB),)
- 	$(RANLIB) $@
- endif
- 	rm *.o
--else
--	echo "Define F90C to build $(LIB)/libfcb.a"
--endif
- 
- $(SOLIB)/$(SO_LIB_FCB): $(F90SOURCE) $(HEADERS) $(COMMONDEP) $(SOLIB)
--ifneq ($(F90C),)
- 	-rm -f $@
- 	mkdir -p $(SOLIB)
- 	$(F90C) $(F90FLAGS) $(SOCFLAGS) $(INCLUDES) $(WARNINGS) -c $(F90SOURCE)
- 	$(F90C) $(F90FLAGS) -o $@ *.o $(SOLDFLAGS)
- 	rm *.o
--else
--	echo "Define F90C to build $(SOLIB)/$(SO_LIB_FCB)"
--endif
--
- 
- #
- # Python bindings
-@@ -2111,7 +2133,7 @@ $(PY2CBF)/xmas/readmarheader.py \
- $(PY2CBF)/xmas/xmasheaders.py   \
- $(PY2CBF)/xmas/xmas_cif_template.cif : $(NUWEB_DEP) $(NUWEB_DEP2) $(PY2CBF)/pycbf.w
- 	(cd $(PY2CBF); $(NUWEB) pycbf.w )
--	touch $(PY2CBF)/py2setup_py.m4
-+	 touch $(PY2CBF)/py2setup_py.m4
-  
- $(PY2CBF)/_py2cbf.$(PY2CBFEXT):	$(PY2CBF)  shared \
- 	$(PY2CBF)/py2setup.py                    \
-@@ -2131,13 +2153,13 @@ $(PY2CBF)/py2cbfuserinstall: $(PY2CBF)/pycbf.py
- 
- $(PY2CBF)/py2setup.py: $(PY2CBF)/py2setup_py.m4
- 	(m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
--	   -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
--	   $(PY2CBF)/py2setup_py.m4 > $@)
-+	 -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
-+	 $(PY2CBF)/py2setup_py.m4 > $@)
- 
- $(PY2CBF)/py2setup_MINGW.py: $(PY2CBF)/setup_py.m4
--	   (m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
--	   -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
--	   $(PY2CBF)/py2setup_py.m4 > $@)
-+	(m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
-+	 -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
-+	 $(PY2CBF)/py2setup_py.m4 > $@)
- 
- $(LIB)/_py2cbf.$(PY2CBFEXT): $(PY2CBF)/_py2cbf.$(PY2CBFEXT)
- 	mkdir -p $(LIB)
-@@ -2145,11 +2167,11 @@ $(LIB)/_py2cbf.$(PY2CBFEXT): $(PY2CBF)/_py2cbf.$(PY2CBFEXT)
+ restore_signatures:	restore_output
  	
- $(PY2CBF)/pycbf.pdf: $(NUWEB_DEP) $(NUWEB_DEP2) $(PY2CBF)/pycbf.w
- 	(cd $(PY2CBF); \
--	$(NUWEB) pycbf; \
--	latex pycbf; \
--	$(NUWEB) pycbf; \
--	latex pycbf; \
--	dvipdfm pycbf )
-+	 $(NUWEB) pycbf; \
-+	 latex pycbf; \
-+	 $(NUWEB) pycbf; \
-+	 latex pycbf; \
-+	 dvipdfm pycbf )
- 	
- $(PY2CBF)/CBFlib.txt: $(DOC)/CBFlib.html
- 	links -dump $(DOC)/CBFlib.html > $(PY2CBF)/CBFlib.txt
-@@ -2159,8 +2181,8 @@ $(PY2CBF)/pycbf.py:	$(PY2CBF)/pycbf.pdf $(PY2CBF)/cbfdetectorwrappers.i \
- 			$(PY2CBF)/cbfgoniometerwrappers.i                \
- 			$(PY2CBF)/CBFlib.txt $(PY2CBF)/make_pycbf.py 
- 	(cd $(PY2CBF);  $(PYTHON2) make_pycbf.py; $(PYSWIG) -module py2cbf pycbf.i;     \
--		$(PYTHON2) py2setup.py build; mv pycbf.py rawpycbf.py;   \
--		cat rawpycbf.py | sed "s/ _pycbf/ _py2cbf/" > pycbf.py )
-+	 $(PYTHON2) py2setup.py build; mv pycbf.py rawpycbf.py;   \
-+	 cat rawpycbf.py | sed "s/ _pycbf/ _py2cbf/" > pycbf.py )
- 
- $(PY3CBF)/make_pycbf.py: $(NUWEB_DEP) $(NUWEB_DEP2) $(PY3CBF)/make_pycbf.w
- 	(cd $(PY3CBF); $(NUWEB) make_pycbf.w)
-@@ -2202,13 +2224,13 @@ $(PY3CBF)/py3cbfuserinstall: $(PY3CBF)/pycbf.py
- 
- $(PY3CBF)/py3setup.py: $(PY3CBF)/py3setup_py.m4
- 	(m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
--	   -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
--	   $(PY3CBF)/py3setup_py.m4 > $@)
-+	 -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
-+	 $(PY3CBF)/py3setup_py.m4 > $@)
- 
- $(PY3CBF)/py3setup_MINGW.py: $(PY3CBF)/py3setup_py.m4
--	   (m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
--	   -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
--	   $(PY3CBF)/py3setup_py.m4 > $@)
-+	(m4 -P -Dregexlib=$(REGEX_LIB) -Dregexlib2=$(REGEX_LIB2) \
-+	 -Dregexlibdir=$(REGEX_LIBDIR) -Dhdf5_prefix=$(HDF5_PREFIX) \
-+	 $(PY3CBF)/py3setup_py.m4 > $@)
- 
- $(LIB)/_pycbf.$(PY3CBFEXT): $(PY3CBF)/_pycbf.$(PY3CBFEXT)
- 	mkdir -p $(LIB)
-@@ -2216,11 +2238,11 @@ $(LIB)/_pycbf.$(PY3CBFEXT): $(PY3CBF)/_pycbf.$(PY3CBFEXT)
- 	
- $(PY3CBF)/pycbf.pdf: $(NUWEB_DEP) $(NUWEB_DEP2) $(PY3CBF)/pycbf.w
- 	(cd $(PY3CBF); \
--	$(NUWEB) pycbf; \
--	latex pycbf; \
--	$(NUWEB) pycbf; \
--	latex pycbf; \
--	dvipdfm pycbf )
-+	 $(NUWEB) pycbf; \
-+	 latex pycbf; \
-+	 $(NUWEB) pycbf; \
-+	 latex pycbf; \
-+	 dvipdfm pycbf )
- 	
- $(PY3CBF)/CBFlib.txt: $(DOC)/CBFlib.html
- 	links -dump $(DOC)/CBFlib.html > $(PY3CBF)/CBFlib.txt
-@@ -2230,8 +2252,8 @@ $(PY3CBF)/pycbf.py:	$(PY3CBF)/pycbf.pdf $(PY3CBF)/cbfdetectorwrappers.i \
- 			$(PY3CBF)/cbfgoniometerwrappers.i                \
- 			$(PY3CBF)/CBFlib.txt $(PY3CBF)/make_pycbf.py 
- 	(cd $(PY3CBF);  $(PYTHON3) make_pycbf.py; $(PYSWIG) pycbf.i;     \
--		$(PYTHON3) py3setup.py build; mv pycbf.py rawpycbf.py;   \
--		echo "# coding=utf-8" | cat - rawpycbf.py > pycbf.py)
-+	 $(PYTHON3) py3setup.py build; mv pycbf.py rawpycbf.py;   \
-+	 echo "# coding=utf-8" | cat - rawpycbf.py > pycbf.py)
- 
- #
- # Java bindings
-@@ -2450,7 +2472,7 @@ $(BIN)/tiff2cbf: $(LIB)/libcbf.a $(EXAMPLES)/tiff2cbf.c $(EXAMPLES)/tif_sprint.c
- 	$(GOPTLIB)	$(GOPTINC) $(TIFF)
- 	mkdir -p $(BIN)
- 	$(CC) $(CFLAGS) $(LDFLAGS) $(MISCFLAG) $(CBF_REGEXFLAG) $(INCLUDES) $(WARNINGS) \
--	-I$(TIFF)/libtiff $(EXAMPLES)/tiff2cbf.c $(GOPTLIB) -L$(LIB) \
-+	-I$(TIFF)/libtiff $(EXAMPLES)/tiff2cbf.c $(EXAMPLES)/tif_sprint.c $(GOPTLIB) -L$(LIB) \
- 	-lcbf -L$(TIFF_PREFIX)/lib -ltiff $(REGEX_LIBS_STATIC) $(HDF5LIBS_LOCAL) $(EXTRALIBS) $(HDF5LIBS_SYSTEM) -limg -o $@
- 
- #
-@@ -2891,6 +2913,7 @@ extra:	$(BIN)/convert_image $(BIN)/convert_minicbf $(BIN)/cif2cbf \
+@@ -3164,6 +3194,7 @@
  	$(BIN)/testreals $(BIN)/testflat $(BIN)/testflatpacked \
  	$(BIN)/convert_minicbf \
  	$(BIN)/sauter_test $(BIN)/adscimg2cbf $(BIN)/cbf2adscimg \
@@ -491,33 +266,9 @@ index a991477..426fa22 100644
  	$(BIN)/testhdf5 $(BIN)/testalloc \
  	$(BIN_TESTULP) \
  	basic $(TESTINPUT_EXTRA) $(TESTOUTPUT) $(EXAMPLES)/batch_convert_minicbf.sh
-@@ -2938,8 +2961,8 @@ endif
- 	-cat insulin_pilatus6mconverted_v2_orig.cbf | sed "2,2s/0.9.6/0.9.7/" | diff -a - insulin_pilatus6mconverted_v2.cbf
- 	#-cmp insulin_pilatus6mconverted_v2.cbf insulin_pilatus6mconverted_v2_orig.cbf
- 	(CBF_CONVERT_MINICBF_PATH=$(BIN); export CBF_CONVERT_MINICBF_PATH; \
--	     $(LDPREFIX) $(EXAMPLES)/batch_convert_minicbf.sh "." "minicbf_test" \
--	    "X4_lots_M1S4_1_*.cbf"  $(TEMPLATES)/template_X4_lots_M1S4.cbf)
-+	 $(LDPREFIX) $(EXAMPLES)/batch_convert_minicbf.sh "." "minicbf_test" \
-+	 "X4_lots_M1S4_1_*.cbf"  $(TEMPLATES)/template_X4_lots_M1S4.cbf)
- #
- #       Starting with insulin_pilatus6mconverted.cbf, create hdf5 files using opaque, encI, encp, encb, encc, encz
- #
-@@ -3065,9 +3088,9 @@ py2cbfuserinstall: $(PY2CBF)/_py2cbf.$(PY2CBFEXT) $(PY2CBF)/py2cbfuserinstall
- py3cbftests:  $(PY3CBF)/_pycbf.$(PY3CBFEXT) $(BIN)/cbf_standardize_numbers $(TESTOUTPUT)
- 	($(RTLPEXPORTS) cd $(PY3CBF); $(PYTHON3) $(PY3CBF)/pycbf_test1.py | $(BIN)/cbf_standardize_numbers - 4 > pycbf_test1.out)
- 	-(cd $(PY3CBF); grep -v "__builtins__" $(ROOT)/pycbf_test1_orig.out | \
--          grep -v "__add__" | grep -v "Foundthebinary" > pycbf_test1_orig.out; \
--          grep -v "__builtins__"  pycbf_test1.out | \
--          grep -v "__add__" | grep -v "Foundthebinary" |$(DIFF) - pycbf_test1_orig.out)
-+	  grep -v "__add__" | grep -v "Foundthebinary" > pycbf_test1_orig.out; \
-+	  grep -v "__builtins__"  pycbf_test1.out | \
-+	  grep -v "__add__" | grep -v "Foundthebinary" |$(DIFF) - pycbf_test1_orig.out)
- 	($(RTLPEXPORTS) cd $(PY3CBF); $(PYTHON3) $(PY3CBF)/pycbf_test2.py | $(BIN)/cbf_standardize_numbers - 4 > pycbf_test2.out)
- 	-(cd $(PY3CBF); $(DIFF) pycbf_test2.out $(ROOT)/pycbf_test2_orig.out)
- 	($(RTLPEXPORTS) cd $(PY3CBF); $(PYTHON3) $(PY3CBF)/pycbf_test3.py | $(BIN)/cbf_standardize_numbers - 4 > pycbf_test3.out)
-@@ -3088,7 +3111,11 @@ py3cbfinstall: $(PY3CBF)/_pycbf.$(PY3CBFEXT) $(PY3CBF)/py3cbfinstall
+@@ -3368,7 +3399,11 @@
  
- py3cbfuserinstall: $(PY3CBF)/_pycbf.$(PY3CBFEXT) $(PY3CBF)/py3cbfuserinstall
+ endif
  
 -javatests: $(BIN)/ctestcbf $(BIN)/testcbf.class $(SOLIB)/$(SO_LIB_CBF_WRAP)
 +ctestcbf_bin: $(BIN)/ctestcbf $(BIN)/testcbf.class $(SOLIB)/$(SO_LIB_CBF_WRAP) $(BIN)/changtestcompression
