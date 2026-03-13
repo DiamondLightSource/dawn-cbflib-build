@@ -14,12 +14,12 @@ while [ $MTIME_M4 -le $MTIME_MF ]; do
 done
 
 brew install swig
-brew install openjdk@11
+brew install openjdk@21
 
 if [ -z "$HOMEBREW_PREFIX" ]; then
     HOMEBREW_PREFIX=$(realpath $(dirname $(which brew))/..)
 fi
-export JDKDIR=$HOMEBREW_PREFIX/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
+export JDKDIR=$HOMEBREW_PREFIX/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 
 PLAT_OS=macos
 LIBEXT=dylib

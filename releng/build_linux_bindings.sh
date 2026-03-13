@@ -5,7 +5,7 @@ set -e -x
 # bash build_manylinux_binding.sh
 
 # install jdk
-dnf install -y java-11-openjdk-devel
+dnf install -y java-21-openjdk-devel
 
 cd /io
 

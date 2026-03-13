@@ -19,12 +19,12 @@ LIBEXT=dll
 
 export PLAT_OS=win32
 
-if [ -n "$JAVA_HOME_11_X64" ]; then
-  JDKDIR=`echo $JAVA_HOME_11_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
+if [ -n "$JAVA_HOME_21_X64" ]; then
+  JDKDIR=`echo $JAVA_HOME_21_X64 | sed -e 's,C:,/c,' | tr \\\\ /` # make a Unix path
 elif [ -n "$JAVA_HOME" ]; then
   JDKDIR="$JAVA_HOME"
 elif [ -z "$JDKDIR" ]; then
-  echo "Must define JDKDIR or override it with JAVA_HOME_11_X64 or JAVA_HOME"
+  echo "Must define JDKDIR or override it with JAVA_HOME_21_X64 or JAVA_HOME"
   exit 1
 fi
 ARCH=x86_64
