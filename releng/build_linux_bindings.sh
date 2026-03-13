@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e -x
 
-# docker run --rm -v $PWD:/io:Z quay.io/pypa/manylinux2014_x86_64:latest /bin/bash /io/releng/build_manylinux_binding.sh
+# docker run --rm -v $PWD:/io:Z quay.io/pypa/manylinux_2_28_x86_64:latest /bin/bash /io/releng/build_manylinux_binding.sh
 # bash build_manylinux_binding.sh
 
 # install jdk
-yum install -y java-11-openjdk-devel
+dnf install -y java-11-openjdk-devel
 
 cd /io
 
